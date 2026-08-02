@@ -148,6 +148,7 @@ export type CaseStudy = {
   hasSampleDashboard?: boolean
   dashboardMock?: DashboardMock
   order?: number
+  coverImage?: { asset?: { _ref?: string; _type?: string } } | null
 }
 
 export type Post = {
