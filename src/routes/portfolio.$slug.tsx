@@ -20,7 +20,15 @@ export const Route = createFileRoute('/portfolio/$slug')({
       getSiteSettings(),
       getPublicMediaConfig(),
     ])
-    if (!study) throw notFound()
+
+    // If the study isn't available (Sanity not configured or missing doc), fall back to seeded content
+    if (!study) {
+      const { fallbackCaseStudies } = await import('../lib/sanity/fallback')
+      const fb = fallbackCaseStudies.find((c) => c.slug?.current === params.slug) ?? null
+      if (!fb) throw notFound()
+      return { study: fb, settings, media }
+    }
+
     return { study, settings, media }
   },
   head: ({ loaderData }) => {

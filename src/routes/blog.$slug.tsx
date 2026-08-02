@@ -21,7 +21,15 @@ export const Route = createFileRoute('/blog/$slug')({
       getSiteSettings(),
       getPublicMediaConfig(),
     ])
-    if (!post) throw notFound()
+
+    // If the post isn't available (Sanity not configured or missing doc), fall back to seeded content
+    if (!post) {
+      const { fallbackPosts } = await import('../lib/sanity/fallback')
+      const fb = fallbackPosts.find((p) => p.slug?.current === params.slug) ?? null
+      if (!fb) throw notFound()
+      return { post: fb, settings, media }
+    }
+
     return { post, settings, media }
   },
   head: ({ loaderData }) => {
