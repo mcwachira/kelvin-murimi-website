@@ -52,7 +52,7 @@ export const Route = createFileRoute('/api/revalidate')({
             const res = await fetch('https://api.vercel.com/v1/purge', {
               method: 'POST',
               headers: {
-                authorization: `Bearer ${process.env.VERCEL_PURGE_TOKEN}`,
+                Authorization: `Bearer ${process.env.VERCEL_PURGE_TOKEN}`,
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({ paths }),
