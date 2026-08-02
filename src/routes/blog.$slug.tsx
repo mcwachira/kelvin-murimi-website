@@ -1,0 +1,92 @@
+import { createFileRoute, notFound } from '@tanstack/react-router'
+import { CTA, PageHero, PortableContent, Tags } from '../components/Site'
+import {
+  getPostBySlug,
+  getSiteSettings,
+  getPublicMediaConfig,
+} from '../lib/sanity/data.functions'
+import { assetRefFrom, sanityImageUrl } from '../lib/sanity/url'
+
+export const Route = createFileRoute('/blog/$slug')({
+  validateSearch: (search: Record<string, unknown>) => ({
+    preview:
+      search.preview === true || search.preview === '1' || search.preview === 'true'
+        ? true
+        : undefined,
+  }),
+  loaderDeps: ({ search }) => ({ preview: search.preview }),
+  loader: async ({ params, deps }) => {
+    const [post, settings, media] = await Promise.all([
+      getPostBySlug({ data: { slug: params.slug, preview: deps.preview } }),
+      getSiteSettings(),
+      getPublicMediaConfig(),
+    ])
+    if (!post) throw notFound()
+    return { post, settings, media }
+  },
+  head: ({ loaderData }) => {
+    const post = loaderData?.post
+    const media = loaderData?.media
+    if (!post) {
+      return { meta: [{ title: 'Field Note — Kelvin Murimi' }] }
+    }
+    const ogImage = sanityImageUrl(media, assetRefFrom(post.coverImage), {
+      width: 1200,
+    })
+    return {
+      meta: [
+        { title: `${post.title} — Kelvin Murimi` },
+        { name: 'description', content: post.excerpt ?? '' },
+        { property: 'og:title', content: post.title },
+        { property: 'og:description', content: post.excerpt ?? '' },
+        ...(ogImage ? [{ property: 'og:image', content: ogImage }] : []),
+        { name: 'robots', content: post.publishedAt ? 'index,follow' : 'noindex,nofollow' },
+      ],
+      scripts: [
+        {
+          type: 'application/ld+json',
+          children: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BlogPosting',
+            headline: post.title,
+            datePublished: post.publishedAt,
+            description: post.excerpt,
+            keywords: post.tags,
+            author: { '@type': 'Person', name: 'Kelvin Murimi' },
+          }),
+        },
+      ],
+    }
+  },
+  component: Page,
+})
+
+function formatDate(value?: string | null) {
+  if (!value) return ''
+  return new Date(value).toLocaleDateString('en-GB', {
+    year: 'numeric',
+    month: 'long',
+    day: '2-digit',
+  })
+}
+
+function Page() {
+  const { post, settings, media } = Route.useLoaderData()
+  const isPreview = Route.useSearch().preview
+  return (
+    <main>
+      <PageHero eyebrow={`${formatDate(post.publishedAt)} · FIELD NOTE`} title={post.title}>
+        <Tags items={post.tags} />
+        {isPreview && (
+          <p className="eyebrow" style={{ color: 'var(--amber)' }}>
+            DRAFT PREVIEW — this content is not public
+          </p>
+        )}
+      </PageHero>
+      <article className="shell prose article">
+        <PortableContent blocks={post.body} media={media} />
+      </article>
+      <CTA contact={settings.contact} />
+    </main>
+  )
+}
