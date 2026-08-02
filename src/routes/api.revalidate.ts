@@ -53,7 +53,7 @@ export const Route = createFileRoute('/api/revalidate')({
               method: 'POST',
               headers: {
                 authorization: `Bearer ${process.env.VERCEL_PURGE_TOKEN}`,
-                'content-type': 'application/json',
+                "content-type": "application/json",
               },
               body: JSON.stringify({ paths }),
             })
