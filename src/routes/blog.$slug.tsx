@@ -75,7 +75,12 @@ function Page() {
   const isPreview = Route.useSearch().preview
   return (
     <main>
-      <PageHero eyebrow={`${formatDate(post.publishedAt)} · FIELD NOTE`} title={post.title}>
+      <PageHero
+        eyebrow={`${formatDate(post.publishedAt)} · FIELD NOTE`}
+        title={post.title}
+        cover={post.coverImage}
+        media={media}
+      >
         <Tags items={post.tags} />
         {isPreview && (
           <p className="eyebrow" style={{ color: 'var(--amber)' }}>

@@ -56,7 +56,12 @@ function Page() {
   const number = String(study.caseNumber ?? 0).padStart(2, '0')
   return (
     <main>
-      <PageHero eyebrow={`CASE ${number} · ${study.year} · ${study.organization}`} title={study.title}>
+      <PageHero
+        eyebrow={`CASE ${number} · ${study.year} · ${study.organization}`}
+        title={study.title}
+        cover={study.coverImage}
+        media={media}
+      >
         <Tags items={study.tags} />
       </PageHero>
       <section className="shell">

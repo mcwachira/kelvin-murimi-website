@@ -16,16 +16,29 @@ export function PageHero({
   eyebrow,
   title,
   children,
+  cover,
+  media,
 }: {
   eyebrow: string
   title: string
   children?: React.ReactNode
+  cover?: { asset?: { _ref?: string } } | null
+  media?: SanityMediaConfig | null
 }) {
   return (
     <section className="page-hero shell">
-      <Eyebrow>{eyebrow}</Eyebrow>
-      <h1>{title}</h1>
-      {children && <div className="lede">{children}</div>}
+      <div className="page-hero-inner">
+        <div>
+          <Eyebrow>{eyebrow}</Eyebrow>
+          <h1>{title}</h1>
+          {children && <div className="lede">{children}</div>}
+        </div>
+        {cover && (
+          <div className="hero-cover">
+            <CoverImage image={cover} media={media} alt={title} />
+          </div>
+        )}
+      </div>
     </section>
   )
 }
