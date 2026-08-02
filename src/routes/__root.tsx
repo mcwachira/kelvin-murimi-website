@@ -66,18 +66,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <Header settings={settings} />
           {children}
           <Footer settings={settings} />
-          <TanStackDevtools
-            config={{
-              position: 'bottom-right',
-            }}
-            plugins={[
-              {
-                name: 'Tanstack Router',
-                render: () => <TanStackRouterDevtoolsPanel />,
-              },
-              TanStackQueryDevtools,
-            ]}
-          />
+          {/* Devtools disabled in CI/typecheck run */}
         </PostHogProvider>
         <Scripts />
       </body>
