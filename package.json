@@ -6,8 +6,9 @@
     "#/*": "./src/*"
   },
   "engines": {
-    "node": "18.x"
+    "node": "24.x"
   },
+
   "scripts": {
     "postinstall": "prisma generate || true",
     "dev": "vite dev --port 3000",
