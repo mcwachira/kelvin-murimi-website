@@ -30,7 +30,6 @@ export const Route = createFileRoute('/api/contact')({
           stored = true
         } catch {
           // No database configured — fall back to a mailto-style confirmation.
-          stored = false
         }
 
         if (stored) {
