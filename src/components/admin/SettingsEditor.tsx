@@ -21,10 +21,11 @@ export default function SettingsEditor({
   const router = useRouter()
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing form state from an async-loaded `doc` prop; safe, not render-derived
     setState({ ...(doc ?? {}) })
     setStatus(null)
     setError(null)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [doc])
 
   const set = (path: string) => (value: unknown) =>

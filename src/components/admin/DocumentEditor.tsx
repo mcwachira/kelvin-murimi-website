@@ -49,10 +49,10 @@ export default function DocumentEditor({
     if (base.metaDescription === undefined && seo?.metaDescription) {
       base.metaDescription = seo.metaDescription
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing form state from an async-loaded `doc` prop; safe, not render-derived
     setState(base)
     setStatus(null)
     setError(null)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [doc])
 
   const set = (key: string) => (value: unknown) => setState((prev) => ({ ...prev, [key]: value }))
