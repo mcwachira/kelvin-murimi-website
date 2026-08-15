@@ -26,6 +26,7 @@ import { Route as PortfolioSlugRouteImport } from './routes/portfolio.$slug'
 import { Route as AdminDashboardIndexRouteImport } from './routes/_admin.dashboard.index'
 import { Route as AdminDashboardSectionRouteImport } from './routes/_admin.dashboard.$section'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as AdminDashboardSectionIndexRouteImport } from './routes/_admin.dashboard.$section.index'
 import { Route as AdminDashboardSectionIdRouteImport } from './routes/_admin.dashboard.$section.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -113,6 +114,12 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminDashboardSectionIndexRoute =
+  AdminDashboardSectionIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AdminDashboardSectionRoute,
+  } as any)
 const AdminDashboardSectionIdRoute = AdminDashboardSectionIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -138,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/dashboard/': typeof AdminDashboardIndexRoute
   '/dashboard/$section/$id': typeof AdminDashboardSectionIdRoute
+  '/dashboard/$section/': typeof AdminDashboardSectionIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -153,10 +161,10 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/portfolio/$slug': typeof PortfolioSlugRoute
   '/blog': typeof BlogIndexRoute
-  '/dashboard/$section': typeof AdminDashboardSectionRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/dashboard': typeof AdminDashboardIndexRoute
   '/dashboard/$section/$id': typeof AdminDashboardSectionIdRoute
+  '/dashboard/$section': typeof AdminDashboardSectionIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -178,6 +186,7 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/_admin/dashboard/': typeof AdminDashboardIndexRoute
   '/_admin/dashboard/$section/$id': typeof AdminDashboardSectionIdRoute
+  '/_admin/dashboard/$section/': typeof AdminDashboardSectionIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -200,6 +209,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/dashboard/'
     | '/dashboard/$section/$id'
+    | '/dashboard/$section/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -215,10 +225,10 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/portfolio/$slug'
     | '/blog'
-    | '/dashboard/$section'
     | '/api/auth/$'
     | '/dashboard'
     | '/dashboard/$section/$id'
+    | '/dashboard/$section'
   id:
     | '__root__'
     | '/'
@@ -239,6 +249,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/_admin/dashboard/'
     | '/_admin/dashboard/$section/$id'
+    | '/_admin/dashboard/$section/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -379,6 +390,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_admin/dashboard/$section/': {
+      id: '/_admin/dashboard/$section/'
+      path: '/'
+      fullPath: '/dashboard/$section/'
+      preLoaderRoute: typeof AdminDashboardSectionIndexRouteImport
+      parentRoute: typeof AdminDashboardSectionRoute
+    }
     '/_admin/dashboard/$section/$id': {
       id: '/_admin/dashboard/$section/$id'
       path: '/$id'
@@ -403,10 +421,12 @@ const PortfolioRouteWithChildren = PortfolioRoute._addFileChildren(
 
 interface AdminDashboardSectionRouteChildren {
   AdminDashboardSectionIdRoute: typeof AdminDashboardSectionIdRoute
+  AdminDashboardSectionIndexRoute: typeof AdminDashboardSectionIndexRoute
 }
 
 const AdminDashboardSectionRouteChildren: AdminDashboardSectionRouteChildren = {
   AdminDashboardSectionIdRoute: AdminDashboardSectionIdRoute,
+  AdminDashboardSectionIndexRoute: AdminDashboardSectionIndexRoute,
 }
 
 const AdminDashboardSectionRouteWithChildren =
