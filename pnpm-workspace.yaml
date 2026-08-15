@@ -1,6 +1,15 @@
+packages:
+  - "."
+
 allowBuilds:
-  esbuild: true
-  lightningcss: true
-  '@prisma/engines': true
-  prisma: true
+  "@prisma/engines": true
   core-js: true
+  esbuild: true
+  prisma: true
+
+onlyBuiltDependencies:
+  - esbuild
+  - lightningcss
+  - "@prisma/engines"
+  - prisma
+  - core-js
