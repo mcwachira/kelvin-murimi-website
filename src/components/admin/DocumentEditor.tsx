@@ -7,7 +7,7 @@ import { Field, TextInput, TextArea, Toggle, ListEditor, BlockTextarea } from '.
 import type { CaseStudyInput, ContentDocumentInput } from '../../lib/validations'
 import type { PortableTextBlock } from '../../lib/sanity/types'
 
-export type EditorType = 'caseStudy' | 'post' | 'experience' | 'skillCategory' | 'capability'
+export type EditorType = 'caseStudy' | 'post' | 'experience' | 'education' | 'language' | 'skillCategory' | 'capability'
 
 type State = Record<string, unknown>
 
@@ -82,7 +82,7 @@ export default function DocumentEditor({
     },
   })
 
-  const title = str('title')
+  const title = str('title') || str('name') || str('degree')
 
   return (
     <div className="admin-editor">
@@ -137,7 +137,26 @@ export default function DocumentEditor({
             />
           </Field>
         )}
-
+        {type === 'education' && (
+            <div className="field-grid">
+              <Field label="Degree">
+                <TextInput value={str('degree')} onChange={set('degree')} />
+              </Field>
+              <Field label="Institution">
+                <TextInput value={str('institution')} onChange={set('institution')} />
+              </Field>
+            </div>
+        )}
+        {type === 'language' && (
+            <div className="field-grid">
+              <Field label="Language">
+                <TextInput value={str('name')} onChange={set('name')} />
+              </Field>
+              <Field label="Level" hint='e.g. "Fluent", "Native"'>
+                <TextInput value={str('level')} onChange={set('level')} />
+              </Field>
+            </div>
+        )}
         {type === 'caseStudy' && (
           <>
             <div className="field-grid">
@@ -302,6 +321,10 @@ function typeLabel(type: EditorType): string {
       return 'post'
     case 'experience':
       return 'role'
+    case 'education':
+      return 'education entry'
+    case 'language':
+      return 'language'
     case 'skillCategory':
       return 'skill group'
     case 'capability':
@@ -363,6 +386,19 @@ function buildInput(type: EditorType, state: State): ContentDocumentInput['data'
         endDate: strOrUndef(state.endDate),
         isCurrent: Boolean(state.isCurrent),
         bullets: listOrUndef(state.bullets),
+      }
+
+    case 'education':
+      return {
+        degree: String(state.degree ?? ''),
+        institution: strOrUndef(state.institution),
+        order: numOrUndef(state.order),
+      }
+    case 'language':
+      return {
+        name: String(state.name ?? ''),
+        level: strOrUndef(state.level),
+        order: numOrUndef(state.order),
       }
     case 'skillCategory':
       return { title: String(state.title ?? ''), order: numOrUndef(state.order), skills: listOrUndef(state.skills) }
