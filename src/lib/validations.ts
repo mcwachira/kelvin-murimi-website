@@ -77,6 +77,17 @@ export const postSchema = z.object({
   order: z.number().int().optional(),
 })
 
+export const educationSchema = z.object({
+    degree: z.string().min(1).max(180),
+    institution: z.string().max(180).optional().nullable(),
+    order: z.number().int().optional(),
+})
+export const languageSchema = z.object({
+    name: z.string().min(1).max(80),
+    level: z.string().max(80).optional().nullable(),
+    order: z.number().int().optional(),
+})
+
 export const experienceSchema = z.object({
   title: z.string().min(1).max(180),
   organization: z.string().max(160).optional().nullable(),
@@ -138,11 +149,13 @@ export const siteSettingsSchema = z.object({
 })
 
 export const contentDocumentSchema = z.discriminatedUnion('type', [
-  z.object({ type: z.literal('caseStudy'), data: caseStudySchema }),
-  z.object({ type: z.literal('post'), data: postSchema }),
-  z.object({ type: z.literal('experience'), data: experienceSchema }),
-  z.object({ type: z.literal('skillCategory'), data: skillCategorySchema }),
-  z.object({ type: z.literal('capability'), data: capabilitySchema }),
+    z.object({ type: z.literal('caseStudy'), data: caseStudySchema }),
+    z.object({ type: z.literal('post'), data: postSchema }),
+    z.object({ type: z.literal('experience'), data: experienceSchema }),
+    z.object({ type: z.literal('education'), data: educationSchema }),
+    z.object({ type: z.literal('language'), data: languageSchema }),
+    z.object({ type: z.literal('skillCategory'), data: skillCategorySchema }),
+    z.object({ type: z.literal('capability'), data: capabilitySchema }),
 ])
 
 export type CaseStudyInput = z.infer<typeof caseStudySchema>
@@ -152,3 +165,5 @@ export type SkillCategoryInput = z.infer<typeof skillCategorySchema>
 export type CapabilityInput = z.infer<typeof capabilitySchema>
 export type SiteSettingsInput = z.infer<typeof siteSettingsSchema>
 export type ContentDocumentInput = z.infer<typeof contentDocumentSchema>
+export type EducationInput = z.infer<typeof educationSchema>
+export type LanguageInput = z.infer<typeof languageSchema>

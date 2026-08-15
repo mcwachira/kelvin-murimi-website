@@ -11,11 +11,13 @@ import type { JsonValue } from './types'
 const DRAFT_PREFIX = 'drafts.'
 
 const editableTypes = [
-  'caseStudy',
-  'post',
-  'experience',
-  'skillCategory',
-  'capability',
+    'caseStudy',
+    'post',
+    'experience',
+    'education',
+    'language',
+    'skillCategory',
+    'capability',
 ] as const
 
 function baseId(id: string): string {
@@ -50,15 +52,16 @@ async function fetchListForType(
   client: NonNullable<ReturnType<typeof requireWriteClient>>,
   type: string,
 ): Promise<AdminListEntry[]> {
-  const projection = `{
-    _id,
-    _updatedAt,
-    order,
-    publishedAt,
-    year,
-    title,
-    name
-  }`
+    const projection = `{
+  _id,
+  _updatedAt,
+  order,
+  publishedAt,
+  year,
+  title,
+  name,
+  degree
+}`
   const [published, drafts] = await Promise.all([
     client.fetch<
       Array<{
@@ -69,6 +72,7 @@ async function fetchListForType(
         year?: string | null
         title?: string
         name?: string
+          degree?:string
       }>
     >(`*[_type == $type]${projection}`, { type }),
     client.fetch<
@@ -80,6 +84,7 @@ async function fetchListForType(
         year?: string | null
         title?: string
         name?: string
+          degree?:string
       }>
     >(`*[_type == $type && _id in path("drafts.**")]${projection}`, { type }),
   ])
@@ -90,7 +95,7 @@ async function fetchListForType(
     byBase.set(id, {
       id,
       type,
-      title: d.title ?? d.name ?? 'Untitled',
+      title: d.title ?? d.name ?? d.degree ?? 'Untitled',
       isDraft: false,
       updatedAt: d._updatedAt ?? null,
       order: d.order ?? null,
@@ -103,7 +108,7 @@ async function fetchListForType(
     byBase.set(id, {
       id,
       type,
-      title: d.title ?? d.name ?? 'Untitled',
+      title: d.title ?? d.name ?? d.degree ?? 'Untitled',
       isDraft: true,
       updatedAt: d._updatedAt ?? null,
       order: d.order ?? null,
