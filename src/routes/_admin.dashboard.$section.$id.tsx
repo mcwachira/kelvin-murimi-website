@@ -6,10 +6,12 @@ import type { EditorType } from '../components/admin/DocumentEditor'
 
 const typeBySection: Record<string, EditorType> = {
   'case-studies': 'caseStudy',
-  blog: 'post',
-  experience: 'experience',
-  skills: 'skillCategory',
-  capabilities: 'capability',
+    blog: 'post',
+    experience: 'experience',
+    education: 'education',
+    languages: 'language',
+    skills: 'skillCategory',
+    capabilities: 'capability',
 }
 
 export const Route = createFileRoute('/_admin/dashboard/$section/$id')({
@@ -22,10 +24,11 @@ function EditorPage() {
   if (section === 'settings') {
     throw redirect({ to: '/dashboard/$section', params: { section: 'settings' } })
   }
-  const type = typeBySection[section]
-  if (!type) {
-    throw redirect({ to: '/dashboard' })
-  }
+    const type = typeBySection[section]
+    console.log('DEBUG', { section, type, typeBySectionKeys: Object.keys(typeBySection) })
+    if (!type) {
+        throw redirect({ to: '/dashboard' })
+    }
 
   const isNew = id === 'new'
 

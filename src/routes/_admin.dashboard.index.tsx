@@ -11,6 +11,8 @@ const cards = [
   ['case-studies', 'Case studies', 'caseStudy'],
   ['blog', 'Blog posts', 'post'],
   ['experience', 'Experience', 'experience'],
+  ['education', 'Education', 'education'],
+  ['languages', 'Languages', 'language'],
   ['skills', 'Skill groups', 'skillCategory'],
   ['capabilities', 'Capabilities', 'capability'],
 ] as const

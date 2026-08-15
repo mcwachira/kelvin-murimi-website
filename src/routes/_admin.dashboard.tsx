@@ -20,6 +20,8 @@ const sections = [
   ['case-studies', 'Case studies'],
   ['blog', 'Blog posts'],
   ['experience', 'Experience'],
+  ['education', 'Education'],
+  ['languages', 'Languages'],
   ['skills', 'Skill groups'],
   ['capabilities', 'Capabilities'],
   ['settings', 'Site settings'],
