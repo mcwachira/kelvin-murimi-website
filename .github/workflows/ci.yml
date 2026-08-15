@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm prisma generate
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
+        env:
+          # Dummy values — CI only needs the build to succeed, not connect to a real DB.
+          DATABASE_URL: "postgresql://user:pass@localhost:5432/db"
+          BETTER_AUTH_URL: "http://localhost:3000"
+          BETTER_AUTH_SECRET: "ci-placeholder-secret-not-used-in-prod"
+          ADMIN_EMAIL: "ci@example.com"
+          SANITY_PROJECT_ID: ""
+          SANITY_DATASET: "production"
