@@ -34,6 +34,9 @@ jobs:
       - name: Generate Prisma client
         run: pnpm prisma generate
 
+      - name: Generate route tree
+        run: pnpm generate-routes
+
       - name: Typecheck
         run: pnpm typecheck
 
