@@ -138,7 +138,10 @@ export function DashboardMock({ mock }: { mock?: CaseStudy['dashboardMock'] }) {
           </div>
           <b>Quarterly outputs</b>
         </div>
-        <div className="donut" style={{ ['--coverage' as any]: mock.coveragePercent ?? 0 }}>
+        <div
+            className="donut"
+            style={{ '--coverage': mock.coveragePercent ?? 0 } as React.CSSProperties}
+        >
           <strong>{mock.coveragePercent ?? 0}%</strong>
           <span>coverage</span>
         </div>
