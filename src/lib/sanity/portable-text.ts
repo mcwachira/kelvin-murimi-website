@@ -71,7 +71,7 @@ export function plainTextToBlocks(markdown: string): PortableTextBlock[] {
     }
     if (line.startsWith('    ')) {
       flushParagraph()
-      blocks.push(makeBlock('code', line.replace(/^    /, '')))
+      blocks.push(makeBlock('code', line.replace(/^ {4}/, '')))
       continue
     }
     const bullet = /^\s*[-*]\s+(.*)$/.exec(line)
