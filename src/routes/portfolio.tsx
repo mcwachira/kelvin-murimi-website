@@ -1,28 +1,28 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { CTA, DashboardMock, PageHero, PortableContent, Tags } from '../components/Site'
-import { getCaseStudies, getSiteSettings, getPublicMediaConfig } from '../lib/sanity/data.functions'
+import { getCaseStudies } from '../lib/sanity/data.functions'
+import { useMediaConfig, useSiteSettings } from '../lib/root-data'
+import { pageHead } from '../lib/page-head'
 import type { PortableTextBlock } from '../lib/sanity/types'
 
 export const Route = createFileRoute('/portfolio')({
   loader: async () => {
-    const [cases, settings, media] = await Promise.all([
-      getCaseStudies(),
-      getSiteSettings(),
-      getPublicMediaConfig(),
-    ])
-    return { cases, settings, media }
+    const cases = await getCaseStudies()
+    return { cases }
   },
-  head: () => ({
-    meta: [
-      { title: 'Portfolio — Kelvin Murimi' },
-      { name: 'description', content: 'Selected, client-safe examples of analysis translated into action.' },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: 'Portfolio — Kelvin Murimi',
+      description: 'Selected, client-safe examples of analysis translated into action.',
+      path: '/portfolio',
+    }),
   component: Page,
 })
 
 function Page() {
-  const { cases, settings, media } = Route.useLoaderData()
+  const { cases } = Route.useLoaderData()
+  const settings = useSiteSettings()
+  const media = useMediaConfig()
   return (
     <main>
       <PageHero eyebrow="CASE FILES" title="Where the data led, and what changed because of it.">

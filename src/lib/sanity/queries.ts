@@ -46,7 +46,10 @@ export const caseStudyBySlugQuery = `*[_type == "caseStudy" && slug.current == $
   tags, summary, approach, analysis, outcome, hasSampleDashboard, dashboardMock, order
 }`
 
-/** All published slugs for sitemaps, regardless of type. */
-export const allSlugsQuery = `*[_type in ["post", "caseStudy"] && defined(slug.current)]{
+/** All published slugs for sitemaps, regardless of type. Excludes scheduled/unpublished posts. */
+export const allSlugsQuery = `*[
+  defined(slug.current) &&
+  (_type == "caseStudy" || (_type == "post" && defined(publishedAt) && publishedAt <= now()))
+]{
   "type": _type, "slug": slug.current
 }`

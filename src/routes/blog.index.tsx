@@ -1,18 +1,20 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { CTA, PageHero, Tags } from '../components/Site'
-import { getPosts, getSiteSettings } from '../lib/sanity/data.functions'
+import { getPosts } from '../lib/sanity/data.functions'
+import { useSiteSettings } from '../lib/root-data'
+import { pageHead } from '../lib/page-head'
 
 export const Route = createFileRoute('/blog/')({
   loader: async () => {
-    const [posts, settings] = await Promise.all([getPosts(), getSiteSettings()])
-    return { posts, settings }
+    const posts = await getPosts()
+    return { posts }
   },
-  head: () => ({
-    meta: [
-      { title: 'Field Notes — Kelvin Murimi' },
-      { name: 'description', content: 'Practical notes on MEL, data quality, dashboards and delivery.' },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: 'Field Notes — Kelvin Murimi',
+      description: 'Practical notes on MEL, data quality, dashboards and delivery.',
+      path: '/blog',
+    }),
   component: Page,
 })
 
@@ -26,7 +28,8 @@ function formatDate(value?: string | null) {
 }
 
 function Page() {
-  const { posts, settings } = Route.useLoaderData()
+  const { posts } = Route.useLoaderData()
+  const settings = useSiteSettings()
   return (
     <main>
       <PageHero eyebrow="FIELD NOTES" title="Ideas from the space between evidence and action.">

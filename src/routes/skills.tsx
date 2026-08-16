@@ -1,23 +1,26 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { CTA, PageHero, Tags } from '../components/Site'
-import { getSkills, getSiteSettings } from '../lib/sanity/data.functions'
+import { getSkills } from '../lib/sanity/data.functions'
+import { useSiteSettings } from '../lib/root-data'
+import { pageHead } from '../lib/page-head'
 
 export const Route = createFileRoute('/skills')({
   loader: async () => {
-    const [groups, settings] = await Promise.all([getSkills(), getSiteSettings()])
-    return { groups, settings }
+    const groups = await getSkills()
+    return { groups }
   },
-  head: () => ({
-    meta: [
-      { title: 'Skills — Kelvin Murimi' },
-      { name: 'description', content: 'Tools and methods I work in — a skills legend.' },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: 'Skills — Kelvin Murimi',
+      description: 'Tools and methods I work in — a skills legend.',
+      path: '/skills',
+    }),
   component: Page,
 })
 
 function Page() {
-  const { groups, settings } = Route.useLoaderData()
+  const { groups } = Route.useLoaderData()
+  const settings = useSiteSettings()
   return (
     <main>
       <PageHero eyebrow="TOOLKIT / STACKS & METHODS" title="Skills.">

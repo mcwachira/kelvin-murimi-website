@@ -1,11 +1,9 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import { CTA, PageHero, PortableContent, Tags } from '../components/Site'
-import {
-  getPostBySlug,
-  getSiteSettings,
-  getPublicMediaConfig,
-} from '../lib/sanity/data.functions'
+import { getPostBySlug, getPublicMediaConfig } from '../lib/sanity/data.functions'
+import { useSiteSettings } from '../lib/root-data'
 import { assetRefFrom, sanityImageUrl } from '../lib/sanity/url'
+import { absoluteUrl } from '../lib/site-url'
 
 export const Route = createFileRoute('/blog/$slug')({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -16,9 +14,8 @@ export const Route = createFileRoute('/blog/$slug')({
   }),
   loaderDeps: ({ search }) => ({ preview: search.preview }),
   loader: async ({ params, deps }) => {
-    const [post, settings, media] = await Promise.all([
+    const [post, media] = await Promise.all([
       getPostBySlug({ data: { slug: params.slug, preview: deps.preview } }),
-      getSiteSettings(),
       getPublicMediaConfig(),
     ])
 
@@ -27,10 +24,10 @@ export const Route = createFileRoute('/blog/$slug')({
       const { fallbackPosts } = await import('../lib/sanity/fallback')
       const fb = fallbackPosts.find((p) => p.slug?.current === params.slug) ?? null
       if (!fb) throw notFound()
-      return { post: fb, settings, media }
+      return { post: fb, media }
     }
 
-    return { post, settings, media }
+    return { post, media }
   },
   head: ({ loaderData }) => {
     const post = loaderData?.post
@@ -41,15 +38,23 @@ export const Route = createFileRoute('/blog/$slug')({
     const ogImage = sanityImageUrl(media, assetRefFrom(post.coverImage), {
       width: 1200,
     })
+    const canonical = post.slug?.current ? absoluteUrl(`/blog/${post.slug.current}`) : undefined
     return {
       meta: [
         { title: `${post.title} — Kelvin Murimi` },
         { name: 'description', content: post.excerpt ?? '' },
+        { property: 'og:type', content: 'article' },
         { property: 'og:title', content: post.title },
         { property: 'og:description', content: post.excerpt ?? '' },
+        ...(canonical ? [{ property: 'og:url', content: canonical }] : []),
         ...(ogImage ? [{ property: 'og:image', content: ogImage }] : []),
+        { name: 'twitter:card', content: ogImage ? 'summary_large_image' : 'summary' },
+        { name: 'twitter:title', content: post.title },
+        { name: 'twitter:description', content: post.excerpt ?? '' },
+        ...(ogImage ? [{ name: 'twitter:image', content: ogImage }] : []),
         { name: 'robots', content: post.publishedAt ? 'index,follow' : 'noindex,nofollow' },
       ],
+      links: canonical ? [{ rel: 'canonical', href: canonical }] : [],
       scripts: [
         {
           type: 'application/ld+json',
@@ -79,7 +84,8 @@ function formatDate(value?: string | null) {
 }
 
 function Page() {
-  const { post, settings, media } = Route.useLoaderData()
+  const { post, media } = Route.useLoaderData()
+  const settings = useSiteSettings()
   const isPreview = Route.useSearch().preview
   return (
     <main>

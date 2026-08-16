@@ -1,32 +1,25 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { CTA, PageHero } from '../components/Site'
-import {
-  getExperience,
-  getEducation,
-  getLanguages,
-  getSiteSettings,
-} from '../lib/sanity/data.functions'
+import { getExperience, getEducation, getLanguages } from '../lib/sanity/data.functions'
+import { useSiteSettings } from '../lib/root-data'
+import { pageHead } from '../lib/page-head'
 import type { Experience } from '../lib/sanity/types'
 
 export const Route = createFileRoute('/experience')({
   loader: async () => {
-    const [experience, education, languages, settings] = await Promise.all([
+    const [experience, education, languages] = await Promise.all([
       getExperience(),
       getEducation(),
       getLanguages(),
-      getSiteSettings(),
     ])
-    return { experience, education, languages, settings }
+    return { experience, education, languages }
   },
-  head: () => ({
-    meta: [
-      { title: 'Experience — Kelvin Murimi' },
-      {
-        name: 'description',
-        content: 'Where the work has taken me — a timeline of MEL and BI roles.',
-      },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: 'Experience — Kelvin Murimi',
+      description: 'Where the work has taken me — a timeline of MEL and BI roles.',
+      path: '/experience',
+    }),
   component: Page,
 })
 
@@ -38,7 +31,8 @@ function formatRange(entry: Experience) {
 }
 
 function Page() {
-  const { experience, education, languages, settings } = Route.useLoaderData()
+  const { experience, education, languages } = Route.useLoaderData()
+  const settings = useSiteSettings()
   return (
     <main>
       <PageHero eyebrow="TIMELINE / POSITIONS HELD" title="Experience.">

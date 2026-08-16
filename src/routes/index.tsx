@@ -7,6 +7,7 @@ import {
   getPublicMediaConfig,
 } from '../lib/sanity/data.functions'
 import { assetRefFrom, sanityImageUrl } from '../lib/sanity/url'
+import { absoluteUrl } from '../lib/site-url'
 
 export const Route = createFileRoute('/')({
   loader: async () => {
@@ -25,15 +26,23 @@ export const Route = createFileRoute('/')({
       assetRefFrom(s?.seo?.ogImage),
       { width: 1200 },
     )
+    const title = s?.seo?.metaTitle ?? 'Kelvin Murimi — MEL & Business Intelligence'
+    const description = s?.seo?.metaDescription ?? s?.heroSubcopy ?? ''
     return {
       meta: [
-        { title: s?.seo?.metaTitle ?? 'Kelvin Murimi — MEL & Business Intelligence' },
-        { name: 'description', content: s?.seo?.metaDescription ?? s?.heroSubcopy ?? '' },
+        { title },
+        { name: 'description', content: description },
         { property: 'og:type', content: 'website' },
         { property: 'og:title', content: s?.seo?.metaTitle ?? s?.name ?? 'Kelvin Murimi' },
-        { property: 'og:description', content: s?.seo?.metaDescription ?? s?.heroSubcopy ?? '' },
+        { property: 'og:description', content: description },
+        { property: 'og:url', content: absoluteUrl('/') },
         ...(ogImage ? [{ property: 'og:image', content: ogImage }] : []),
+        { name: 'twitter:card', content: ogImage ? 'summary_large_image' : 'summary' },
+        { name: 'twitter:title', content: title },
+        { name: 'twitter:description', content: description },
+        ...(ogImage ? [{ name: 'twitter:image', content: ogImage }] : []),
       ],
+      links: [{ rel: 'canonical', href: absoluteUrl('/') }],
       scripts: [
         {
           type: 'application/ld+json',

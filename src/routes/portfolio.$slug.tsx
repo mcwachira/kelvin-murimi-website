@@ -6,41 +6,42 @@ import {
   PortableContent,
   Tags,
 } from '../components/Site'
-import {
-  getCaseStudyBySlug,
-  getSiteSettings,
-  getPublicMediaConfig,
-} from '../lib/sanity/data.functions'
+import { getCaseStudyBySlug } from '../lib/sanity/data.functions'
+import { useMediaConfig, useSiteSettings } from '../lib/root-data'
+import { absoluteUrl } from '../lib/site-url'
 import type { PortableTextBlock } from '../lib/sanity/types'
 
 export const Route = createFileRoute('/portfolio/$slug')({
   loader: async ({ params }) => {
-    const [study, settings, media] = await Promise.all([
-      getCaseStudyBySlug({ data: { slug: params.slug } }),
-      getSiteSettings(),
-      getPublicMediaConfig(),
-    ])
+    const study = await getCaseStudyBySlug({ data: { slug: params.slug } })
 
     // If the study isn't available (Sanity not configured or missing doc), fall back to seeded content
     if (!study) {
       const { fallbackCaseStudies } = await import('../lib/sanity/fallback')
       const fb = fallbackCaseStudies.find((c) => c.slug?.current === params.slug) ?? null
       if (!fb) throw notFound()
-      return { study: fb, settings, media }
+      return { study: fb }
     }
 
-    return { study, settings, media }
+    return { study }
   },
   head: ({ loaderData }) => {
     const study = loaderData?.study
     if (!study) return { meta: [{ title: 'Case File — Kelvin Murimi' }] }
+    const canonical = study.slug?.current ? absoluteUrl(`/portfolio/${study.slug.current}`) : undefined
     return {
       meta: [
         { title: `${study.title} — Kelvin Murimi` },
         { name: 'description', content: study.summary ?? '' },
+        { property: 'og:type', content: 'article' },
         { property: 'og:title', content: study.title },
         { property: 'og:description', content: study.summary ?? '' },
+        ...(canonical ? [{ property: 'og:url', content: canonical }] : []),
+        { name: 'twitter:card', content: 'summary' },
+        { name: 'twitter:title', content: study.title },
+        { name: 'twitter:description', content: study.summary ?? '' },
       ],
+      links: canonical ? [{ rel: 'canonical', href: canonical }] : [],
       scripts: [
         {
           type: 'application/ld+json',
@@ -60,7 +61,9 @@ export const Route = createFileRoute('/portfolio/$slug')({
 })
 
 function Page() {
-  const { study, settings, media } = Route.useLoaderData()
+  const { study } = Route.useLoaderData()
+  const settings = useSiteSettings()
+  const media = useMediaConfig()
   const number = String(study.caseNumber ?? 0).padStart(2, '0')
   return (
     <main>

@@ -1,21 +1,21 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, type FormEvent } from 'react'
 import { Eyebrow } from '../components/Site'
-import { getSiteSettings } from '../lib/sanity/data.functions'
+import { useSiteSettings } from '../lib/root-data'
+import { pageHead } from '../lib/page-head'
 
 export const Route = createFileRoute('/contact')({
-  loader: async () => ({ settings: await getSiteSettings() }),
-  head: () => ({
-    meta: [
-      { title: 'Contact — Kelvin Murimi' },
-      { name: 'description', content: 'Get in touch about MEL, reporting or BI needs.' },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: 'Contact — Kelvin Murimi',
+      description: 'Get in touch about MEL, reporting or BI needs.',
+      path: '/contact',
+    }),
   component: Page,
 })
 
 function Page() {
-  const { settings } = Route.useLoaderData()
+  const settings = useSiteSettings()
   const [status, setStatus] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
   const [message, setMessage] = useState('')
 
