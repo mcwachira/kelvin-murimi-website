@@ -24,25 +24,25 @@ export const capabilitiesQuery = `*[_type == "capability"]|order(order asc){
 }`
 
 export const caseStudiesQuery = `*[_type == "caseStudy"]|order(order asc){
-  _id, _type, caseNumber, title, "slug": slug.current, year, organization,
+  _id, _type, caseNumber, title, slug, year, organization,
   tags, summary, approach, analysis, outcome, hasSampleDashboard, dashboardMock, order
 }`
 
 export const postsQuery = `*[_type == "post" && defined(publishedAt) && publishedAt <= now()]|order(publishedAt desc){
-  _id, _type, title, "slug": slug.current, excerpt, coverImage, tags, publishedAt, seo
+  _id, _type, title, slug, excerpt, coverImage, tags, publishedAt, seo
 }`
 
 export const postBySlugQuery = `*[_type == "post" && slug.current == $slug && defined(publishedAt) && publishedAt <= now()][0]{
-  _id, _type, title, "slug": slug.current, excerpt, coverImage, body, tags, publishedAt, seo
+  _id, _type, title, slug, excerpt, coverImage, body, tags, publishedAt, seo
 }`
 
 /** Draft/scheduled-inclusive variant used only behind the admin preview route. */
 export const postBySlugPreviewQuery = `*[_type == "post" && slug.current == $slug][0]{
-  _id, _type, title, "slug": slug.current, excerpt, coverImage, body, tags, publishedAt, seo
+  _id, _type, title, slug, excerpt, coverImage, body, tags, publishedAt, seo
 }`
 
 export const caseStudyBySlugQuery = `*[_type == "caseStudy" && slug.current == $slug][0]{
-  _id, _type, caseNumber, title, "slug": slug.current, year, organization,
+  _id, _type, caseNumber, title, slug, year, organization,
   tags, summary, approach, analysis, outcome, hasSampleDashboard, dashboardMock, order
 }`
 

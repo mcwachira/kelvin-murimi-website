@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from '@tanstack/react-router'
-import { saveContentDocument, uploadImage } from '../../lib/sanity/mutations.functions'
-import { slugify } from '../../lib/slugify'
-import { Field, TextInput, TextArea, Toggle, ListEditor, BlockTextarea } from './fields'
-import type { CaseStudyInput, ContentDocumentInput } from '../../lib/validations'
-import type { PortableTextBlock } from '../../lib/sanity/types'
+import { saveContentDocument, uploadImage } from '@/lib/sanity/mutations.functions'
+import { slugify } from '@/lib/slugify'
+import { Field, TextInput, TextArea, Toggle, ListEditor, BlockTextarea, BodyImageInserter } from './fields'
+import type { CaseStudyInput, ContentDocumentInput } from '@/lib/validations'
+import { blocksToPlainText, plainTextToBlocks } from '@/lib/sanity/portable-text'
+import type { PortableTextBlock, PortableTextItem } from '@/lib/sanity/types'
 
 export type EditorType = 'caseStudy' | 'post' | 'experience' | 'education' | 'language' | 'skillCategory' | 'capability'
 
@@ -17,11 +18,11 @@ function coverRefFrom(doc: Record<string, unknown> | null): string {
 }
 
 export default function DocumentEditor({
-  type,
-  id,
-  doc,
-  isDraft,
-}: {
+                                         type,
+                                         id,
+                                         doc,
+                                         isDraft,
+                                       }: {
   type: EditorType
   id: string
   doc: Record<string, unknown> | null
@@ -60,6 +61,7 @@ export default function DocumentEditor({
   const bool = (key: string) => Boolean(state[key])
   const list = (key: string) => ((state[key] as string[] | undefined) ?? []).map(String)
   const blocks = (key: string) => (state[key] as PortableTextBlock[] | undefined) ?? []
+  const bodyItems = (state.body as PortableTextItem[] | undefined) ?? []
 
   const mutation = useMutation({
     mutationFn: ({ publish }: { publish: boolean }) => {
@@ -85,191 +87,225 @@ export default function DocumentEditor({
   const title = str('title') || str('name') || str('degree')
 
   return (
-    <div className="admin-editor">
-      <div className="editor-head">
-        <div>
-          <h2>{id === 'new' ? `New ${typeLabel(type)}` : title || 'Untitled'}</h2>
-          {id !== 'new' && (
-            <p className="muted">
-              {isDraft ? 'Draft — private until you publish.' : 'Published.'}
-            </p>
-          )}
+      <div className="admin-editor">
+        <div className="editor-head">
+          <div>
+            <h2>{id === 'new' ? `New ${typeLabel(type)}` : title || 'Untitled'}</h2>
+            {id !== 'new' && (
+                <p className="muted">
+                  {isDraft ? 'Draft — private until you publish.' : 'Published.'}
+                </p>
+            )}
+          </div>
+          <div className="button-row">
+            <button
+                className="button"
+                disabled={mutation.isPending}
+                onClick={() => mutation.mutate({ publish: false })}
+            >
+              {mutation.isPending ? 'Saving…' : 'Save draft'}
+            </button>
+            <button
+                className="button primary"
+                disabled={mutation.isPending}
+                onClick={() => mutation.mutate({ publish: true })}
+            >
+              Publish
+            </button>
+          </div>
         </div>
-        <div className="button-row">
-          <button
-            className="button"
-            disabled={mutation.isPending}
-            onClick={() => mutation.mutate({ publish: false })}
-          >
-            {mutation.isPending ? 'Saving…' : 'Save draft'}
-          </button>
-          <button
-            className="button primary"
-            disabled={mutation.isPending}
-            onClick={() => mutation.mutate({ publish: true })}
-          >
-            Publish
-          </button>
-        </div>
-      </div>
 
-      {status && <p className="form-status ok">{status} — reloading…</p>}
-      {error && <p className="form-status">{error}</p>}
+        {status && <p className="form-status ok">{status} — reloading…</p>}
+        {error && <p className="form-status">{error}</p>}
 
-      <div className="admin-form">
-        <Field label="Title">
-          <TextInput
-            value={title}
-            onChange={set('title')}
-            placeholder={`${typeLabel(type)} title`}
-          />
-        </Field>
-
-        {(type === 'post' || type === 'caseStudy') && (
-          <Field label="Slug" hint="URL path — auto-fills from title on blur">
+        <div className="admin-form">
+          <Field label="Title">
             <TextInput
-              value={str('slug')}
-              onChange={set('slug')}
-              onBlur={() => {
-                if (!str('slug')) set('slug')(slugify(title))
-              }}
-              placeholder={slugify(title) || 'url-slug'}
+                value={title}
+                onChange={set('title')}
+                placeholder={`${typeLabel(type)} title`}
             />
           </Field>
-        )}
-        {type === 'education' && (
-            <div className="field-grid">
-              <Field label="Degree">
-                <TextInput value={str('degree')} onChange={set('degree')} />
-              </Field>
-              <Field label="Institution">
-                <TextInput value={str('institution')} onChange={set('institution')} />
-              </Field>
-            </div>
-        )}
-        {type === 'language' && (
-            <div className="field-grid">
-              <Field label="Language">
-                <TextInput value={str('name')} onChange={set('name')} />
-              </Field>
-              <Field label="Level" hint='e.g. "Fluent", "Native"'>
-                <TextInput value={str('level')} onChange={set('level')} />
-              </Field>
-            </div>
-        )}
-        {type === 'caseStudy' && (
-          <>
-            <div className="field-grid">
-              <Field label="Case number">
+
+          {(type === 'post' || type === 'caseStudy') && (
+              <Field label="Slug" hint="URL path — auto-fills from title on blur">
                 <TextInput
-                  value={String(state['caseNumber'] ?? '')}
-                  onChange={(v) => set('caseNumber')(v === '' ? undefined : Number(v))}
-                  placeholder="1"
+                    value={str('slug')}
+                    onChange={set('slug')}
+                    onBlur={() => {
+                      if (!str('slug')) set('slug')(slugify(title))
+                    }}
+                    placeholder={slugify(title) || 'url-slug'}
                 />
               </Field>
-              <Field label="Year">
-                <TextInput value={str('year')} onChange={set('year')} placeholder="2024" />
+          )}
+
+          {type === 'education' && (
+              <div className="field-grid">
+                <Field label="Degree">
+                  <TextInput value={str('degree')} onChange={set('degree')} />
+                </Field>
+                <Field label="Institution">
+                  <TextInput value={str('institution')} onChange={set('institution')} />
+                </Field>
+              </div>
+          )}
+
+          {type === 'language' && (
+              <div className="field-grid">
+                <Field label="Language">
+                  <TextInput value={str('name')} onChange={set('name')} />
+                </Field>
+                <Field label="Level" hint='e.g. "Fluent", "Native"'>
+                  <TextInput value={str('level')} onChange={set('level')} />
+                </Field>
+              </div>
+          )}
+
+          {type === 'caseStudy' && (
+              <>
+                <div className="field-grid">
+                  <Field label="Case number">
+                    <TextInput
+                        value={String(state['caseNumber'] ?? '')}
+                        onChange={(v) => set('caseNumber')(v === '' ? undefined : Number(v))}
+                        placeholder="1"
+                    />
+                  </Field>
+                  <Field label="Year">
+                    <TextInput value={str('year')} onChange={set('year')} placeholder="2024" />
+                  </Field>
+                  <Field label="Organization">
+                    <TextInput value={str('organization')} onChange={set('organization')} />
+                  </Field>
+                </div>
+                <Field label="Summary">
+                  <TextArea value={str('summary')} onChange={set('summary')} rows={3} />
+                </Field>
+                <Toggle
+                    label="Include the sample dashboard mock"
+                    checked={bool('hasSampleDashboard')}
+                    onChange={set('hasSampleDashboard')}
+                />
+              </>
+          )}
+
+          {type === 'post' && (
+              <>
+                <Field label="Excerpt">
+                  <TextArea value={str('excerpt')} onChange={set('excerpt')} rows={3} />
+                </Field>
+                <Field label="Published at" hint="When the post becomes public. Leave blank to publish immediately.">
+                  <input
+                      type="datetime-local"
+                      value={toLocalInput(str('publishedAt'))}
+                      onChange={(e) => set('publishedAt')(e.target.value ? new Date(e.target.value).toISOString() : undefined)}
+                  />
+                </Field>
+                <Field label="Cover image" hint="PNG/JPG/WebP, up to 8 MB">
+                  <CoverImageUpload value={coverRefFrom(doc)} onChange={(ref) => set('coverImage')(ref ? { _type: 'image', asset: { _type: 'reference', _ref: ref } } : null)} />
+                </Field>
+              </>
+          )}
+
+          {type === 'experience' && (
+              <>
+                <div className="field-grid">
+                  <Field label="Organization">
+                    <TextInput value={str('organization')} onChange={set('organization')} />
+                  </Field>
+                  <Field label="Start date">
+                    <TextInput value={str('startDate') ?? ''} onChange={set('startDate')} placeholder="2021-06" />
+                  </Field>
+                  <Field label="End date">
+                    <TextInput value={str('endDate') ?? ''} onChange={set('endDate')} placeholder="2024-06" />
+                  </Field>
+                  <Field label=" " hint="Leave blank if current">
+                    <Toggle label="Current role" checked={bool('isCurrent')} onChange={set('isCurrent')} />
+                  </Field>
+                </div>
+                <ListEditor label="Highlights" values={list('bullets')} onChange={set('bullets')} />
+              </>
+          )}
+
+          {type === 'skillCategory' && (
+              <ListEditor label="Skills" values={list('skills')} onChange={set('skills')} />
+          )}
+
+          {type === 'capability' && (
+              <Field label="Description">
+                <TextArea value={str('description')} onChange={set('description')} rows={3} />
               </Field>
-              <Field label="Organization">
-                <TextInput value={str('organization')} onChange={set('organization')} />
-              </Field>
-            </div>
-            <Field label="Summary">
-              <TextArea value={str('summary')} onChange={set('summary')} rows={3} />
-            </Field>
-            <Toggle
-              label="Include the sample dashboard mock"
-              checked={bool('hasSampleDashboard')}
-              onChange={set('hasSampleDashboard')}
+          )}
+
+          {(type === 'caseStudy' || type === 'post') && (
+              <ListEditor label="Tags" values={list('tags')} onChange={set('tags')} />
+          )}
+
+          {type === 'caseStudy' && (
+              <>
+                <BlockTextarea label="Approach" value={blocks('approach')} onChange={set('approach')} />
+                <BlockTextarea label="Analysis" value={blocks('analysis')} onChange={set('analysis')} />
+                <BlockTextarea label="Outcome" value={blocks('outcome')} onChange={set('outcome')} />
+                <Field label="Dashboard mock (JSON)" hint="Optional sample metrics shown on the case study page">
+                  <TextArea
+                      value={str('dashboardMockJson')}
+                      onChange={set('dashboardMockJson')}
+                      rows={5}
+                      placeholder={'{"quarterlyOutputData":[{"label":"Q1","value":18}],"coveragePercent":87,"kpis":[]}'}
+                  />
+                </Field>
+              </>
+          )}
+
+          {type === 'post' && (
+              <>
+                <Field label="Body" hint="Blank line = paragraph · ## heading · - bullet · > quote">
+              <textarea
+                  value={blocksToPlainText(bodyItems.filter((b): b is PortableTextBlock => b._type === 'block'))}
+                  onChange={(e) => {
+                    const images = bodyItems.filter((b) => b._type !== 'block')
+                    set('body')([...plainTextToBlocks(e.target.value), ...images])
+                  }}
+                  rows={12}
+              />
+                </Field>
+                <Field label="Body images" hint="Appended to the end of the post">
+                  <BodyImageInserter
+                      onInsert={(block) => set('body')([...bodyItems, block])}
+                  />
+                  {bodyItems.filter((b) => b._type === 'image').length > 0 && (
+                      <div className="list-editor">
+                        {bodyItems.filter((b) => b._type === 'image').map((img) => (
+                            <div key={img._key as string} className="list-item">
+                              <span>{(img as { alt?: string }).alt || '(no alt text)'}</span>
+                              <button
+                                  type="button"
+                                  className="icon-button"
+                                  aria-label="Remove image"
+                                  onClick={() => set('body')(bodyItems.filter((b) => b._key !== img._key))}
+                              >
+                                ×
+                              </button>
+                            </div>
+                        ))}
+                      </div>
+                  )}
+                </Field>
+                <Field label="Meta description">
+                  <TextArea value={str('metaDescription')} onChange={set('metaDescription')} rows={2} />
+                </Field>
+              </>
+          )}
+
+          <Field label="Order" hint="Lower numbers sort first">
+            <TextInput
+                value={String(state['order'] ?? '')}
+                onChange={(v) => set('order')(v === '' ? undefined : Number(v))}
             />
-          </>
-        )}
-
-        {type === 'post' && (
-          <>
-            <Field label="Excerpt">
-              <TextArea value={str('excerpt')} onChange={set('excerpt')} rows={3} />
-            </Field>
-            <Field label="Published at" hint="When the post becomes public. Leave blank to publish immediately.">
-              <input
-                type="datetime-local"
-                value={toLocalInput(str('publishedAt'))}
-                onChange={(e) => set('publishedAt')(e.target.value ? new Date(e.target.value).toISOString() : undefined)}
-              />
-            </Field>
-            <Field label="Cover image" hint="PNG/JPG/WebP, up to 8 MB">
-              <CoverImageUpload value={coverRefFrom(doc)} onChange={(ref) => set('coverImage')(ref ? { _type: 'image', asset: { _type: 'reference', _ref: ref } } : null)} />
-            </Field>
-          </>
-        )}
-
-        {type === 'experience' && (
-          <>
-            <div className="field-grid">
-              <Field label="Organization">
-                <TextInput value={str('organization')} onChange={set('organization')} />
-              </Field>
-              <Field label="Start date">
-                <TextInput value={str('startDate') ?? ''} onChange={set('startDate')} placeholder="2021-06" />
-              </Field>
-              <Field label="End date">
-                <TextInput value={str('endDate') ?? ''} onChange={set('endDate')} placeholder="2024-06" />
-              </Field>
-              <Field label=" " hint="Leave blank if current">
-                <Toggle label="Current role" checked={bool('isCurrent')} onChange={set('isCurrent')} />
-              </Field>
-            </div>
-            <ListEditor label="Highlights" values={list('bullets')} onChange={set('bullets')} />
-          </>
-        )}
-
-        {type === 'skillCategory' && (
-          <ListEditor label="Skills" values={list('skills')} onChange={set('skills')} />
-        )}
-
-        {type === 'capability' && (
-          <Field label="Description">
-            <TextArea value={str('description')} onChange={set('description')} rows={3} />
           </Field>
-        )}
-
-        {(type === 'caseStudy' || type === 'post') && (
-          <ListEditor label="Tags" values={list('tags')} onChange={set('tags')} />
-        )}
-
-        {type === 'caseStudy' && (
-          <>
-            <BlockTextarea label="Approach" value={blocks('approach')} onChange={set('approach')} />
-            <BlockTextarea label="Analysis" value={blocks('analysis')} onChange={set('analysis')} />
-            <BlockTextarea label="Outcome" value={blocks('outcome')} onChange={set('outcome')} />
-            <Field label="Dashboard mock (JSON)" hint="Optional sample metrics shown on the case study page">
-              <TextArea
-                value={str('dashboardMockJson')}
-                onChange={set('dashboardMockJson')}
-                rows={5}
-                placeholder={'{"quarterlyOutputData":[{"label":"Q1","value":18}],"coveragePercent":87,"kpis":[]}'}
-              />
-            </Field>
-          </>
-        )}
-
-        {type === 'post' && (
-          <>
-            <BlockTextarea label="Body" value={blocks('body')} onChange={set('body')} rows={12} />
-            <Field label="Meta description">
-              <TextArea value={str('metaDescription')} onChange={set('metaDescription')} rows={2} />
-            </Field>
-          </>
-        )}
-
-        <Field label="Order" hint="Lower numbers sort first">
-          <TextInput
-            value={String(state['order'] ?? '')}
-            onChange={(v) => set('order')(v === '' ? undefined : Number(v))}
-          />
-        </Field>
+        </div>
       </div>
-    </div>
   )
 }
 
@@ -294,22 +330,22 @@ function CoverImageUpload({ value, onChange }: { value: string; onChange: (ref: 
   }
 
   return (
-    <div className="cover-upload">
-      {value && <p className="muted">Asset: {value}</p>}
-      <input
-        type="file"
-        accept="image/*"
-        disabled={busy}
-        onChange={(e) => handleFile(e.target.files?.[0])}
-      />
-      {busy && <p className="muted">Uploading…</p>}
-      {error && <p className="form-status">{error}</p>}
-      {value && (
-        <button type="button" className="secondary" onClick={() => onChange('')}>
-          Remove image
-        </button>
-      )}
-    </div>
+      <div className="cover-upload">
+        {value && <p className="muted">Asset: {value}</p>}
+        <input
+            type="file"
+            accept="image/*"
+            disabled={busy}
+            onChange={(e) => handleFile(e.target.files?.[0])}
+        />
+        {busy && <p className="muted">Uploading…</p>}
+        {error && <p className="form-status">{error}</p>}
+        {value && (
+            <button type="button" className="secondary" onClick={() => onChange('')}>
+              Remove image
+            </button>
+        )}
+      </div>
   )
 }
 
@@ -367,10 +403,10 @@ function buildInput(type: EditorType, state: State): ContentDocumentInput['data'
         ...base,
         excerpt: strOrUndef(state.excerpt),
         coverImage: (state.coverImage as
-          | { _type?: string; asset?: { _type?: string; _ref?: string } }
-          | null
-          | undefined),
-        body: (state.body as PortableTextBlock[] | undefined) ?? [],
+            | { _type?: string; asset?: { _type?: string; _ref?: string } }
+            | null
+            | undefined),
+        body: (state.body as PortableTextItem[] | undefined) ?? [],
         tags: listOrUndef(state.tags),
         publishedAt: strOrUndef(state.publishedAt),
         seo: {
@@ -387,7 +423,6 @@ function buildInput(type: EditorType, state: State): ContentDocumentInput['data'
         isCurrent: Boolean(state.isCurrent),
         bullets: listOrUndef(state.bullets),
       }
-
     case 'education':
       return {
         degree: String(state.degree ?? ''),

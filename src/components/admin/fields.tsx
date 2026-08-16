@@ -1,6 +1,8 @@
 import { X, Plus } from 'lucide-react'
-import type { PortableTextBlock } from '../../lib/sanity/types'
-import { plainTextToBlocks, blocksToPlainText } from '../../lib/sanity/portable-text'
+import type { PortableTextBlock } from '@/lib/sanity/types'
+import { plainTextToBlocks, blocksToPlainText } from '@/lib/sanity/portable-text.ts'
+import {useState} from "react";
+import {uploadImage} from "#/lib/sanity/mutations.functions.ts";
 
 export function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
@@ -128,5 +130,48 @@ export function BlockTextarea({
         rows={rows}
       />
     </Field>
+  )
+}
+
+export function BodyImageInserter({
+                                    onInsert,
+                                  }: {
+  onInsert: (block: { _type: 'image'; _key: string; asset: { _type: 'reference'; _ref: string }; alt: string }) => void
+}) {
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [alt, setAlt] = useState('')
+  async function handleFile(file: File | undefined) {
+    if (!file) return
+    if (!alt.trim()) {
+      setError('Add alt text before uploading')
+      return
+    }
+    setBusy(true)
+    setError(null)
+    try {
+      const form = new FormData()
+      form.append('file', file)
+      const res = await uploadImage({ data: form })
+      onInsert({
+        _type: 'image',
+        _key: `img-${Math.random().toString(36).slice(2, 10)}`,
+        asset: { _type: 'reference', _ref: res.assetId },
+        alt,
+      })
+      setAlt('')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Upload failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+  return (
+      <div className="cover-upload">
+        <input placeholder="Alt text (required)" value={alt} onChange={(e) => setAlt(e.target.value)} />
+        <input type="file" accept="image/*" disabled={busy} onChange={(e) => handleFile(e.target.files?.[0])} />
+        {busy && <p className="muted">Uploading…</p>}
+        {error && <p className="form-status">{error}</p>}
+      </div>
   )
 }
