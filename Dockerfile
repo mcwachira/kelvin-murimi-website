@@ -26,17 +26,17 @@ RUN pnpm prisma generate \
  && pnpm build
 
 # ---------------------------------------------------------------------------
-# production runtime — no dev tooling, no Sanity Studio, no Prisma CLI
+# production runtime — Nitro's node-server output (.output/) is
+# self-contained: every dependency is either bundled into its .mjs chunks or
+# vendored into .output/server/node_modules (only @prisma/client needs
+# this, since its runtime code generation can't be safely inlined). No
+# package manager, install step, or node_modules copy needed here at all.
 # ---------------------------------------------------------------------------
-FROM base AS runtime
+FROM node:24-alpine AS runtime
 ENV NODE_ENV=production
+WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --prod --frozen-lockfile --ignore-scripts
-
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/src/generated ./src/generated
-COPY server-entry.mjs ./
+COPY --from=builder /app/.output ./.output
 
 EXPOSE 3000
-CMD ["node", "server-entry.mjs"]
+CMD ["node", ".output/server/index.mjs"]
