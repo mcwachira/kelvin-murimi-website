@@ -7,6 +7,8 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import Footer from '../components/Footer'
 import Header from '../components/Header'
+import RootErrorComponent from '../components/RouteError'
+import RootNotFoundComponent from '../components/RouteNotFound'
 
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
@@ -49,6 +51,8 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
     ],
   }),
+  errorComponent: RootErrorComponent,
+  notFoundComponent: RootNotFoundComponent,
   shellComponent: RootDocument,
 })
 
