@@ -23,7 +23,6 @@ export default function Header({ settings }: { settings: SiteSettings }) {
         <div className="shell masthead-inner">
           <Link to="/" className="brand" onClick={() => setMenuOpen(false)}>
             <span>●</span> {settings.name ?? 'Kelvin Murimi'}
-            <em>{settings.tagline ?? 'MEL & Business Intelligence'}</em>
           </Link>
           <span className="masthead-label">FIELD REPORT — {location}</span>
         </div>
