@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, type FormEvent } from 'react'
+import { CheckCircle2 } from 'lucide-react'
 import { Eyebrow } from '../components/Site'
 import { useSiteSettings } from '../lib/root-data'
 import { pageHead } from '../lib/page-head'
@@ -26,11 +27,17 @@ function Page() {
     const body = new FormData(form)
     try {
       const res = await fetch('/api/contact', { method: 'POST', body })
-      const json = (await res.json()) as { message?: string }
+      const json = (await res.json().catch(() => ({}))) as { message?: string; error?: string }
+      if (!res.ok) {
+        setMessage(json.error ?? 'Something went wrong. Please try again, or email directly.')
+        setStatus('error')
+        return
+      }
       setMessage(json.message ?? 'Thank you — your message has been received.')
       setStatus('done')
       form.reset()
     } catch {
+      setMessage('Network error — please check your connection and try again.')
       setStatus('error')
     }
   }
@@ -58,28 +65,44 @@ function Page() {
       </section>
 
       <section className="shell contact-grid">
-        <form onSubmit={handleSubmit} className="contact-form">
+        <div className="contact-form-wrap">
           <div className="eyebrow">SEND A MESSAGE</div>
-          <label>
-            NAME
-            <input name="name" required autoComplete="name" />
-          </label>
-          <label>
-            EMAIL
-            <input type="email" name="email" required autoComplete="email" />
-          </label>
-          <label>
-            MESSAGE
-            <textarea name="message" rows={7} required />
-          </label>
-          <button className="button" type="submit" disabled={status === 'sending'}>
-            {status === 'sending' ? 'Sending…' : 'Send message'}
-          </button>
-          {status === 'done' && <p className="form-status ok">{message}</p>}
-          {status === 'error' && (
-            <p className="form-status">Something went wrong. Email me directly instead.</p>
+          {status === 'done' ? (
+            <div className="form-success">
+              <CheckCircle2 size={28} />
+              <p>{message}</p>
+              <button type="button" className="secondary" onClick={() => setStatus('idle')}>
+                Send another message
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="contact-form" noValidate={false}>
+              <label>
+                NAME
+                <input name="name" required autoComplete="name" minLength={2} maxLength={100} />
+              </label>
+              <label>
+                EMAIL
+                <input type="email" name="email" required autoComplete="email" maxLength={254} />
+              </label>
+              <label>
+                MESSAGE
+                <textarea
+                  name="message"
+                  rows={7}
+                  required
+                  minLength={10}
+                  maxLength={5000}
+                  placeholder="What are you working on, and how can I help?"
+                />
+              </label>
+              <button className="button" type="submit" disabled={status === 'sending'}>
+                {status === 'sending' ? 'Sending…' : 'Send message'}
+              </button>
+              {status === 'error' && <p className="form-status">{message}</p>}
+            </form>
           )}
-        </form>
+        </div>
         <aside className="direct-channels">
           <div className="eyebrow">DIRECT</div>
           {channels.map((ch) => (

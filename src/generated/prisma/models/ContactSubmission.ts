@@ -29,6 +29,7 @@ export type ContactSubmissionMinAggregateOutputType = {
   name: string | null
   email: string | null
   message: string | null
+  read: boolean | null
   createdAt: Date | null
 }
 
@@ -37,6 +38,7 @@ export type ContactSubmissionMaxAggregateOutputType = {
   name: string | null
   email: string | null
   message: string | null
+  read: boolean | null
   createdAt: Date | null
 }
 
@@ -45,6 +47,7 @@ export type ContactSubmissionCountAggregateOutputType = {
   name: number
   email: number
   message: number
+  read: number
   createdAt: number
   _all: number
 }
@@ -55,6 +58,7 @@ export type ContactSubmissionMinAggregateInputType = {
   name?: true
   email?: true
   message?: true
+  read?: true
   createdAt?: true
 }
 
@@ -63,6 +67,7 @@ export type ContactSubmissionMaxAggregateInputType = {
   name?: true
   email?: true
   message?: true
+  read?: true
   createdAt?: true
 }
 
@@ -71,6 +76,7 @@ export type ContactSubmissionCountAggregateInputType = {
   name?: true
   email?: true
   message?: true
+  read?: true
   createdAt?: true
   _all?: true
 }
@@ -152,6 +158,7 @@ export type ContactSubmissionGroupByOutputType = {
   name: string
   email: string
   message: string
+  read: boolean
   createdAt: Date
   _count: ContactSubmissionCountAggregateOutputType | null
   _min: ContactSubmissionMinAggregateOutputType | null
@@ -181,6 +188,7 @@ export type ContactSubmissionWhereInput = {
   name?: Prisma.StringFilter<"ContactSubmission"> | string
   email?: Prisma.StringFilter<"ContactSubmission"> | string
   message?: Prisma.StringFilter<"ContactSubmission"> | string
+  read?: Prisma.BoolFilter<"ContactSubmission"> | boolean
   createdAt?: Prisma.DateTimeFilter<"ContactSubmission"> | Date | string
 }
 
@@ -189,6 +197,7 @@ export type ContactSubmissionOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   message?: Prisma.SortOrder
+  read?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -200,6 +209,7 @@ export type ContactSubmissionWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"ContactSubmission"> | string
   email?: Prisma.StringFilter<"ContactSubmission"> | string
   message?: Prisma.StringFilter<"ContactSubmission"> | string
+  read?: Prisma.BoolFilter<"ContactSubmission"> | boolean
   createdAt?: Prisma.DateTimeFilter<"ContactSubmission"> | Date | string
 }, "id">
 
@@ -208,6 +218,7 @@ export type ContactSubmissionOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   message?: Prisma.SortOrder
+  read?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.ContactSubmissionCountOrderByAggregateInput
   _max?: Prisma.ContactSubmissionMaxOrderByAggregateInput
@@ -222,6 +233,7 @@ export type ContactSubmissionScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"ContactSubmission"> | string
   email?: Prisma.StringWithAggregatesFilter<"ContactSubmission"> | string
   message?: Prisma.StringWithAggregatesFilter<"ContactSubmission"> | string
+  read?: Prisma.BoolWithAggregatesFilter<"ContactSubmission"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ContactSubmission"> | Date | string
 }
 
@@ -230,6 +242,7 @@ export type ContactSubmissionCreateInput = {
   name: string
   email: string
   message: string
+  read?: boolean
   createdAt?: Date | string
 }
 
@@ -238,6 +251,7 @@ export type ContactSubmissionUncheckedCreateInput = {
   name: string
   email: string
   message: string
+  read?: boolean
   createdAt?: Date | string
 }
 
@@ -246,6 +260,7 @@ export type ContactSubmissionUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
+  read?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -254,6 +269,7 @@ export type ContactSubmissionUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
+  read?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -262,6 +278,7 @@ export type ContactSubmissionCreateManyInput = {
   name: string
   email: string
   message: string
+  read?: boolean
   createdAt?: Date | string
 }
 
@@ -270,6 +287,7 @@ export type ContactSubmissionUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
+  read?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -278,6 +296,7 @@ export type ContactSubmissionUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
+  read?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -286,6 +305,7 @@ export type ContactSubmissionCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   message?: Prisma.SortOrder
+  read?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -294,6 +314,7 @@ export type ContactSubmissionMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   message?: Prisma.SortOrder
+  read?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -302,6 +323,7 @@ export type ContactSubmissionMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   message?: Prisma.SortOrder
+  read?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -312,6 +334,7 @@ export type ContactSubmissionSelect<ExtArgs extends runtime.Types.Extensions.Int
   name?: boolean
   email?: boolean
   message?: boolean
+  read?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["contactSubmission"]>
 
@@ -320,6 +343,7 @@ export type ContactSubmissionSelectCreateManyAndReturn<ExtArgs extends runtime.T
   name?: boolean
   email?: boolean
   message?: boolean
+  read?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["contactSubmission"]>
 
@@ -328,6 +352,7 @@ export type ContactSubmissionSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   name?: boolean
   email?: boolean
   message?: boolean
+  read?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["contactSubmission"]>
 
@@ -336,10 +361,11 @@ export type ContactSubmissionSelectScalar = {
   name?: boolean
   email?: boolean
   message?: boolean
+  read?: boolean
   createdAt?: boolean
 }
 
-export type ContactSubmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "message" | "createdAt", ExtArgs["result"]["contactSubmission"]>
+export type ContactSubmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "message" | "read" | "createdAt", ExtArgs["result"]["contactSubmission"]>
 
 export type $ContactSubmissionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ContactSubmission"
@@ -349,6 +375,7 @@ export type $ContactSubmissionPayload<ExtArgs extends runtime.Types.Extensions.I
     name: string
     email: string
     message: string
+    read: boolean
     createdAt: Date
   }, ExtArgs["result"]["contactSubmission"]>
   composites: {}
@@ -777,6 +804,7 @@ export interface ContactSubmissionFieldRefs {
   readonly name: Prisma.FieldRef<"ContactSubmission", 'String'>
   readonly email: Prisma.FieldRef<"ContactSubmission", 'String'>
   readonly message: Prisma.FieldRef<"ContactSubmission", 'String'>
+  readonly read: Prisma.FieldRef<"ContactSubmission", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"ContactSubmission", 'DateTime'>
 }
     

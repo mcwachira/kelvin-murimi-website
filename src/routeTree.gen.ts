@@ -25,6 +25,7 @@ import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as PortfolioSlugRouteImport } from './routes/portfolio.$slug'
 import { Route as AdminDashboardIndexRouteImport } from './routes/_admin.dashboard.index'
 import { Route as AdminDashboardSectionRouteImport } from './routes/_admin.dashboard.$section'
+import { Route as AdminDashboardMessagesRouteImport } from './routes/_admin.dashboard.messages'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as AdminDashboardSectionIndexRouteImport } from './routes/_admin.dashboard.$section.index'
 import { Route as AdminDashboardSectionIdRouteImport } from './routes/_admin.dashboard.$section.$id'
@@ -109,6 +110,11 @@ const AdminDashboardSectionRoute = AdminDashboardSectionRouteImport.update({
   path: '/$section',
   getParentRoute: () => AdminDashboardRoute,
 } as any)
+const AdminDashboardMessagesRoute = AdminDashboardMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => AdminDashboardRoute,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -142,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/portfolio/$slug': typeof PortfolioSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/dashboard/$section': typeof AdminDashboardSectionRouteWithChildren
+  '/dashboard/messages': typeof AdminDashboardMessagesRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/dashboard/': typeof AdminDashboardIndexRoute
   '/dashboard/$section/$id': typeof AdminDashboardSectionIdRoute
@@ -161,6 +168,7 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/portfolio/$slug': typeof PortfolioSlugRoute
   '/blog': typeof BlogIndexRoute
+  '/dashboard/messages': typeof AdminDashboardMessagesRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/dashboard': typeof AdminDashboardIndexRoute
   '/dashboard/$section/$id': typeof AdminDashboardSectionIdRoute
@@ -183,6 +191,7 @@ export interface FileRoutesById {
   '/portfolio/$slug': typeof PortfolioSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/_admin/dashboard/$section': typeof AdminDashboardSectionRouteWithChildren
+  '/_admin/dashboard/messages': typeof AdminDashboardMessagesRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/_admin/dashboard/': typeof AdminDashboardIndexRoute
   '/_admin/dashboard/$section/$id': typeof AdminDashboardSectionIdRoute
@@ -206,6 +215,7 @@ export interface FileRouteTypes {
     | '/portfolio/$slug'
     | '/blog/'
     | '/dashboard/$section'
+    | '/dashboard/messages'
     | '/api/auth/$'
     | '/dashboard/'
     | '/dashboard/$section/$id'
@@ -225,6 +235,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/portfolio/$slug'
     | '/blog'
+    | '/dashboard/messages'
     | '/api/auth/$'
     | '/dashboard'
     | '/dashboard/$section/$id'
@@ -246,6 +257,7 @@ export interface FileRouteTypes {
     | '/portfolio/$slug'
     | '/blog/'
     | '/_admin/dashboard/$section'
+    | '/_admin/dashboard/messages'
     | '/api/auth/$'
     | '/_admin/dashboard/'
     | '/_admin/dashboard/$section/$id'
@@ -383,6 +395,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardSectionRouteImport
       parentRoute: typeof AdminDashboardRoute
     }
+    '/_admin/dashboard/messages': {
+      id: '/_admin/dashboard/messages'
+      path: '/messages'
+      fullPath: '/dashboard/messages'
+      preLoaderRoute: typeof AdminDashboardMessagesRouteImport
+      parentRoute: typeof AdminDashboardRoute
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -436,11 +455,13 @@ const AdminDashboardSectionRouteWithChildren =
 
 interface AdminDashboardRouteChildren {
   AdminDashboardSectionRoute: typeof AdminDashboardSectionRouteWithChildren
+  AdminDashboardMessagesRoute: typeof AdminDashboardMessagesRoute
   AdminDashboardIndexRoute: typeof AdminDashboardIndexRoute
 }
 
 const AdminDashboardRouteChildren: AdminDashboardRouteChildren = {
   AdminDashboardSectionRoute: AdminDashboardSectionRouteWithChildren,
+  AdminDashboardMessagesRoute: AdminDashboardMessagesRoute,
   AdminDashboardIndexRoute: AdminDashboardIndexRoute,
 }
 

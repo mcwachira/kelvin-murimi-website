@@ -1,6 +1,8 @@
 import { createFileRoute, redirect, Link, Outlet } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
 import { authClient } from '../lib/auth-client'
 import { getAdminViewer } from '../lib/auth.functions'
+import { getContactSubmissions } from '../lib/contact.functions'
 import { LogOut, LayoutDashboard } from 'lucide-react'
 
 export const Route = createFileRoute('/_admin/dashboard')({
@@ -28,6 +30,11 @@ const sections = [
 ] as const
 
 function AdminLayout() {
+  const unread = useQuery({
+    queryKey: ['admin', 'messages', 'unread-count'],
+    queryFn: async () => (await getContactSubmissions()).filter((m) => !m.read).length,
+  })
+
   return (
     <div className="admin-shell">
       <aside className="admin-sidebar">
@@ -35,6 +42,10 @@ function AdminLayout() {
           <LayoutDashboard size={16} /> Dashboard
         </Link>
         <nav>
+          <Link to="/dashboard/messages" activeProps={{ className: 'active' }}>
+            Messages
+            {Boolean(unread.data) && <span className="nav-badge">{unread.data}</span>}
+          </Link>
           {sections.map(([slug, label]) => (
             <Link
               key={slug}

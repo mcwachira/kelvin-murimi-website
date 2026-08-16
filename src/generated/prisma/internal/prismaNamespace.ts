@@ -893,6 +893,7 @@ export const ContactSubmissionScalarFieldEnum = {
   name: 'name',
   email: 'email',
   message: 'message',
+  read: 'read',
   createdAt: 'createdAt'
 } as const
 
