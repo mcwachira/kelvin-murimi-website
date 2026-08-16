@@ -14,6 +14,7 @@ export function getRouter() {
     defaultPreload: 'intent',
     defaultPreloadStaleTime: 0,
     defaultStaleTime: 30_000,
+    defaultViewTransition: true,
   })
 
   setupRouterSsrQueryIntegration({ router, queryClient: context.queryClient })

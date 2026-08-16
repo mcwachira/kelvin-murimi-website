@@ -7,6 +7,7 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import Footer from '../components/Footer'
 import Header from '../components/Header'
+import NavigationProgress from '../components/NavigationProgress'
 import RootErrorComponent from '../components/RouteError'
 import RootNotFoundComponent from '../components/RouteNotFound'
 
@@ -66,6 +67,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <PostHogProvider>
+          <NavigationProgress />
           <Header settings={settings} />
           {children}
           <Footer settings={settings} />
