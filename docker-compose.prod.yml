@@ -1,0 +1,23 @@
+# Production compose file — runs only the app container. The database is
+# Supabase-hosted Postgres (external), not a local container: point
+# DATABASE_URL in .env.production at your Supabase connection string.
+#
+# Usage:
+#   cp .env.production.example .env.production   # fill in real values
+#   docker compose -f docker-compose.prod.yml up --build -d
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
